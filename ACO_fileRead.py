@@ -13,7 +13,7 @@ class FileRead():
         # print(instance["node_coord"][1])
         # print(instance["edge_weight"][48][0])
         # print(instance["energy_capacity"])
-        print(instance["demand"])
+        # print(instance["edge_weight"])
         return instance
 
 
