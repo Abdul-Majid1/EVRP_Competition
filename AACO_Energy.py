@@ -70,7 +70,7 @@ class AntColonyOptimization:
                     station_number =None
                     
                     for k in range(self.dimension-self.num_charges+1,self.dimension+1):
-                        if self.distaneMatrix[j-1][k-1] <min:
+                        if self.distaneMatrix[j-1][k-1] <min :
                             min=self.distaneMatrix[j-1][k-1]
                             station=k
                     
@@ -124,7 +124,7 @@ class AntColonyOptimization:
             fullRoute[i].append(city)
             sequence[i].append((city,charge[i]))
 
-        
+        print(sequence)
         return Ant(fullRoute, sum(total_distance))
 
 
@@ -255,7 +255,7 @@ class AntColonyOptimization:
                 elif recharging_station==False:
                     city=self.depot
                     if city == currentCity[i]:
-                        break
+                        continue
                     truckCapacity[i] -= self.demand[city-1]
 
                     total_distance[i] += self.distaneMatrix[currentCity[i]-1][city-1] 
@@ -326,40 +326,24 @@ class AntColonyOptimization:
                     minDist = ant.distance
                     minRoute = ant.routes
                 avgDistance += ant.distance
-      
-            avgDistance = avgDistance // self.numAnts
-            minDistanceList.append(minDist)
-            avgDistanceList.append(avgDistance)
+        
+        avgDistance = avgDistance // self.numAnts
+        minDistanceList.append(minDist)
+        avgDistanceList.append(avgDistance)
         return minDistanceList, avgDistanceList, minDist,minRoute
 
 if __name__ == "__main__":
-    temp = AntColonyOptimization(2, 3, 200, 10, 0.5, "benchmark.evrp",1.4,8)
+    temp = AntColonyOptimization(2, 3, 300, 10, 0.5, "benchmark.evrp",1.4,8)
     result = temp.ACO_main()
     
     print(f'Minimum Distance is {result[2]}')
     print(f'Minimum Route is {result[3]}')
     total_time=0
     for i in result[3]:
-        # print(i)
         for j in range(1,len(i)):
             total_time = total_time + temp.distaneMatrix[i[j-1]-1][i[j]-1]
     print(total_time)
     print(total_time*60)
 
-# Code for geenrating graph with repect to changing alpha beta gamma and evaporation rate
-filename = "A-n32-k5"
 
-# alpha = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-# beta = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-# evapRate = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-# iterations = 50
-# AllResults = []
-# for i in range(len(alpha)):
-#     temp = AntColonyOptimization(alpha[i], beta[i], iterations, 10, evapRate[i], filename )
-#     result = temp.ACO_main()
-#     AllResults.append(result[0][-1])
-
-# # Now I have to create a 4d graph using Matplot Lib
-
-# print(AllResults)
 
