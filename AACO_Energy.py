@@ -17,14 +17,12 @@ class AntColonyOptimization:
         self.Q = 1
         temp = FileRead(path)
         fileInst = temp.instanceTaker()
-        
         self.capacity = fileInst["capacity"]
         self.depot = 1 
-        # print(self.depot)
         self.dimension = fileInst["dimension"]
         self.demand = fileInst["demand"]
         self.distaneMatrix = fileInst["edge_weight"]  
-        # self.energy_distance = copy.deepcopy(fileInst["edge_weight"])
+    
         for i in range(0,len(self.distaneMatrix)):
               for j in range(0,len(self.distaneMatrix[0])):
                   self.distaneMatrix[i][j]= self.distaneMatrix[i][j]/50
@@ -126,7 +124,7 @@ class AntColonyOptimization:
             fullRoute[i].append(city)
             sequence[i].append((city,charge[i]))
 
-        print(sum(total_distance))
+        
         return Ant(fullRoute, sum(total_distance))
 
 
@@ -159,7 +157,7 @@ class AntColonyOptimization:
         # N7: Smart assossiation of the -1 wherever City is one less tahn the index we want to assign it too
 
     def MMAS_deltaT(self):
-        deltaT = [[0 for i in range(self.dimension-self.num_charges)] for j in range(self.dimension - self.num_charges)]
+        deltaT = [[0 for i in range(self.dimension)] for j in range(self.dimension)]
         min_distance=math.inf
         min_route=None
         for ant in self.ants:
@@ -194,14 +192,9 @@ class AntColonyOptimization:
 
 
     def simulateAnt(self):
-        # Copying the code from AntMaking as now I have to decide the city with the help of probabilities
-
-
-
         #N8: Making changes in the copied code since I made changes in the original
         #N9: Notice depot is now part of the unvisited and condition is terminated if only that is left
         fullRoute = []
-
         # N3: change in the unvisited list to remove charging stations and now the node number 1 is the depot instead of node number 2
         currentCity = [self.depot for i in range(0,self.num_vehicles)]
         truckCapacity =[self.capacity for i in range(0,self.num_vehicles)]
@@ -261,7 +254,10 @@ class AntColonyOptimization:
                 
                 elif recharging_station==False:
                     city=self.depot
+                    if city == currentCity[i]:
+                        break
                     truckCapacity[i] -= self.demand[city-1]
+
                     total_distance[i] += self.distaneMatrix[currentCity[i]-1][city-1] 
                     total_distance[i] += (self.max_charge - charge[i])*(1/3)
                     charge[i] = self.max_charge
@@ -272,24 +268,29 @@ class AntColonyOptimization:
                 
                 else:
                     city=station
+                    if city == currentCity[i]:
+                        city =self.depot
+                        truckCapacity[i]=self.capacity
                     total_distance[i] += self.distaneMatrix[currentCity[i]-1][city-1] 
                     total_distance[i] += (self.max_charge - charge[i])*(1/3)
                     charge[i] = self.max_charge
                     fullRoute[i].append(city)
                     sequence[i].append((city,charge[i]))
                     currentCity[i]= city
+               
 
         for i in range(0, len(fullRoute)):
-            city=self.depot
-            truckCapacity[i] -= self.demand[city-1]
-            total_distance[i] += self.distaneMatrix[currentCity[i]-1][city-1] 
-            total_distance[i] += (self.max_charge - charge[i])*(1/3)
-            charge[i] = self.max_charge
-            truckCapacity[i]=self.capacity
-            fullRoute[i].append(city)
-            sequence[i].append((city,charge[i]))
-        
-
+            if fullRoute[i][-1]!=self.depot:
+                city=self.depot
+                truckCapacity[i] -= self.demand[city-1]
+                total_distance[i] += self.distaneMatrix[currentCity[i]-1][city-1] 
+                total_distance[i] += (self.max_charge - charge[i])*(1/3)
+                charge[i] = self.max_charge
+                truckCapacity[i]=self.capacity
+                fullRoute[i].append(city)
+                
+                sequence[i].append((city,charge[i]))
+   
             
 
         # Now the path will again go to Depot to make a full route
@@ -332,7 +333,7 @@ class AntColonyOptimization:
         return minDistanceList, avgDistanceList, minDist,minRoute
 
 if __name__ == "__main__":
-    temp = AntColonyOptimization(2, 3, 300, 10, 0.5, "benchmark.evrp",1.4,8)
+    temp = AntColonyOptimization(2, 3, 200, 10, 0.5, "benchmark.evrp",1.4,8)
     result = temp.ACO_main()
     
     print(f'Minimum Distance is {result[2]}')
@@ -341,7 +342,6 @@ if __name__ == "__main__":
     for i in result[3]:
         # print(i)
         for j in range(1,len(i)):
-            
             total_time = total_time + temp.distaneMatrix[i[j-1]-1][i[j]-1]
     print(total_time)
     print(total_time*60)
